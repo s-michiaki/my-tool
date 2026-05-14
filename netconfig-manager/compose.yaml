@@ -1,0 +1,65 @@
+version: "3.9"
+
+# podman-compose up -d --build
+# (Docker Compose と互換)
+
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    container_name: netconfig-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data:Z
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro,Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [internal]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Containerfile
+    container_name: netconfig-backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+    # 機器へSSHするための外向きアウトバウンド (ホスト側ルーティングを利用)
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Containerfile
+    container_name: netconfig-frontend
+    restart: unless-stopped
+    depends_on: [backend]
+    networks: [internal]
+
+  nginx:
+    image: docker.io/library/nginx:1.27-alpine
+    container_name: netconfig-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro,Z
+      - ./nginx/certs:/etc/nginx/certs:ro,Z
+    depends_on: [backend, frontend]
+    networks: [internal]
+
+volumes:
+  db-data:
+
+networks:
+  internal:
+    driver: bridge

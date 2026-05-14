@@ -1,0 +1,19 @@
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+USER 0
+WORKDIR /app
+
+# Reproducible install using requirements.lock if present, else requirements.txt
+COPY requirements.txt requirements.lock* ./
+RUN if [ -f requirements.lock ]; then \
+      pip install --no-cache-dir -r requirements.lock ; \
+    else \
+      pip install --no-cache-dir -r requirements.txt ; \
+    fi
+
+COPY app ./app
+
+USER 1001
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]

@@ -1,0 +1,21 @@
+# ---- build stage ----
+FROM docker.io/library/node:20-alpine AS build
+WORKDIR /app
+
+# Reproducible install when lockfile is present (recommended for production).
+# Falls back to `npm install` when only package.json is present (first-time setup).
+COPY package.json ./
+COPY package-lock.json* ./
+RUN if [ -f package-lock.json ]; then \
+      echo ">>> Using package-lock.json (npm ci)" && npm ci ; \
+    else \
+      echo ">>> No lockfile, falling back to npm install" && npm install ; \
+    fi
+
+COPY . .
+RUN npm run build
+
+# ---- runtime ----
+FROM docker.io/library/nginx:1.27-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetConfig Manager</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; }
+      a { color: #2563eb; }
+      nav { background: #1f2937; color: #fff; padding: 0.75rem 1rem; display:flex; gap:1rem; }
+      nav a { color: #fff; text-decoration: none; }
+      main { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border-bottom: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; font-size: 0.9rem; }
+      button { padding: 0.4rem 0.8rem; border: 1px solid #cbd5e1; background:#f8fafc; border-radius:4px; cursor:pointer; }
+      button.primary { background:#2563eb; color:#fff; border-color:#1d4ed8; }
+      input, select, textarea { padding: 0.4rem; border:1px solid #cbd5e1; border-radius:4px; }
+      .card { background:#fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem; border-radius:6px; }
+      pre.diff { background:#0b1021; color:#e5e7eb; padding:1rem; overflow:auto; }
+      pre.diff .add { color: #34d399; }
+      pre.diff .del { color: #f87171; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
